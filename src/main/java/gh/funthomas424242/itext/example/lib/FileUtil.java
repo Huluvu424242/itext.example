@@ -34,8 +34,8 @@ public class FileUtil {
         return workingDirPath + File.separator + clazz.getName() + ".pdf";
     }
 
-    public void printLogMessage(final Boolean isOK) {
-        final String fileName = getFileName(this.getClass());
+    public void printLogMessage(final Class<?> clazz, final Boolean isOK) {
+        final String fileName = getFileName(clazz);
         if (Boolean.TRUE.equals(isOK) && streamCreated) {
             LOG.log(Level.INFO, fileName + " successful created");
         } else {

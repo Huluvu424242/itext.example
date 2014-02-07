@@ -17,13 +17,13 @@ public abstract class PDFCreator implements Runnable {
         if (outStream != null) {
             try {
                 createPDF(outStream);
-                filesystem.printLogMessage(Boolean.TRUE);
+                filesystem.printLogMessage(this.getClass(), Boolean.TRUE);
             } catch (DocumentException e) {
-                filesystem.printLogMessage(Boolean.FALSE);
+                filesystem.printLogMessage(this.getClass(), Boolean.FALSE);
             }
 
         } else {
-            filesystem.printLogMessage(Boolean.FALSE);
+            filesystem.printLogMessage(this.getClass(), Boolean.FALSE);
         }
 
     }
