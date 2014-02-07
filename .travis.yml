@@ -1,0 +1,10 @@
+env:
+  global:
+#    - secure: "gzr1m8zeg46HYnGoNU871UK3RMqqShou8bJtGPl8GhgdoSpxTj9At8yrYmwtQCVRDo5GZ3Xukm32IQ2Bp4R1r5eJCRz0SkNEMlDGuwtM62u5qarP1mAFywhszMbr7xVVzJ6O8Y0OoTE/GZ5IjmVLGyJxvYw3X/3VZK1GmGnoMpg="
+#    - secure: "TtECYR8DLf+ymMuadMtRsCbSF66rmWS/y+DquaqZXrs126YTAP6kxWff5+yItyoGJ0/tAYW4LvYAGbY8xdRAJTXDUia3JZ5Q9OrME8d4zJKu1zXFzjRILGTYHAnf1vzJp5wDfV8G6aSzxDjltj3W3z1gX6KOpwM30Gf780sec6M="
+
+language: java
+jdk:
+  - openjdk7
+  
+script: mvn clean install
