@@ -1,5 +1,7 @@
 package gh.funthomas424242.itext.example.lib;
 
+import gh.funthomas424242.itext.example.PDFCreator;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -41,6 +43,11 @@ public class FileUtil {
         } else {
             LOG.log(Level.WARNING, fileName + " has errors");
         }
+
+    }
+
+    public void printLogMessage(Class<?> clazz, String logMessage) {
+        LOG.log(Level.WARNING, logMessage);
 
     }
 }
