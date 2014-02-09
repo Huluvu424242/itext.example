@@ -1,32 +1,39 @@
 package gh.funthomas424242.itext.example;
 
 import java.io.FileOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
 import com.itextpdf.text.Annotation;
+import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
-import com.itextpdf.text.Jpeg;
+import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.Barcode;
+import com.itextpdf.text.pdf.BarcodeDatamatrix;
+import com.itextpdf.text.pdf.BarcodeEAN;
+import com.itextpdf.text.pdf.BarcodePDF417;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.CMYKColor;
 import com.itextpdf.text.pdf.HyphenationAuto;
 import com.itextpdf.text.pdf.HyphenationEvent;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.codec.PngImage;
 
-public class Titelblatt extends PDFCreator {
+public class NumeriertesBlatt extends PDFCreator {
 
     protected BaseFont cousineBold = null;
     protected BaseFont cousineBoldItalic = null;
     protected BaseFont cousineItalic = null;
     protected BaseFont cousineRegular = null;
 
-    public Titelblatt() {
+    public NumeriertesBlatt() {
 
         super();
 
@@ -58,24 +65,78 @@ public class Titelblatt extends PDFCreator {
 
         final Rectangle pageTemplate = createPageTemplate();
         final Document document = new Document(pageTemplate);
-        PdfWriter.getInstance(document, outStream);
+        final PdfWriter writer = PdfWriter.getInstance(document, outStream);
         document.open();
 
         addMetadaten(document);
         addTitelzeile(document);
         addAbsaetze(document);
         addBild(document);
+        addBarcodes(document, writer);
 
         document.close();
+    }
+
+    private void addBarcodes(final Document document, PdfWriter writer) {
+        /**
+         * Mögliche Barcodes:
+         * BarcodeEAN, BarcodeEANSUPP, Barcode128, BarcodeInter25,
+         * BarcodePostnet, Barcode39, BarcodeCodabar
+         * BarcodePDF417, BarcodeDatamatrix, BarcodeQRCode
+         */
+        final CMYKColor blue = new CMYKColor(0.8f, 0.8f, 0, 0);
+        final Font font9 = new Font(cousineBold, 9);
+        font9.setColor(blue);
+        final Phrase text = new Phrase("ISBN: ");
+        final Paragraph absatz = new Paragraph();
+        absatz.setAlignment(Paragraph.ALIGN_JUSTIFIED);
+        absatz.setFont(font9);
+        absatz.add(text);
+
+        // EAN13 Kode z.B. ISBN Strichkode aus Nummer
+        final BarcodeEAN isbn = new BarcodeEAN();
+        isbn.setCodeType(Barcode.EAN13);
+        isbn.setCode("9783446429246");
+        final Image bild = isbn.createImageWithBarcode(
+                writer.getDirectContent(), blue, null);
+        bild.setAlignment(Paragraph.ALIGN_JUSTIFIED);
+        bild.scalePercent(120);
+        absatz.add(bild);
+
+        // PDF417 Punktekode aus Text
+        try {
+            final BarcodePDF417 pdf417 = new BarcodePDF417();
+            pdf417.setText("ISBN: 9783446429246");
+            final Image dataCode = pdf417.getImage();
+            absatz.add(dataCode);
+        } catch (BadElementException e) {
+            printLogMessage(e.toString());
+        }
+
+        // DataMatrix PunkteKode aus Text
+        try {
+            final BarcodeDatamatrix dataMatrix = new BarcodeDatamatrix();
+            dataMatrix.generate("ISBN: 9783446429246");
+            final Image image = dataMatrix.createImage();
+            absatz.add(image);
+        } catch (UnsupportedEncodingException | BadElementException e) {
+            printLogMessage(e.toString());
+        }
+
+        try {
+            document.add(absatz);
+        } catch (DocumentException e) {
+            printLogMessage(e.toString());
+        }
     }
 
     private void addBild(final Document document) {
         try {
             final URL bildURL = new URL(
-                    "http://upload.wikimedia.org/wikipedia/commons/7/74/Flugzeuglandung_einer_airberlin.jpg");
-            final Jpeg bild = new Jpeg(bildURL);
-            bild.setAlignment(Paragraph.ALIGN_CENTER);
-            bild.scalePercent(13);
+                    "http://upload.wikimedia.org/wikipedia/commons/6/68/GegenHartzIVSanktionen.png");
+            final Image bild = PngImage.getImage(bildURL);
+            bild.setAlignment(Paragraph.ALIGN_LEFT);
+            bild.scalePercent(60);
             // Das Urheberrecht fordert Quellen/Lizenzangaben
             // Eine technische Möglichkeit: Annotation
             final Annotation annotation = new Annotation("Lizenz",
@@ -153,12 +214,12 @@ public class Titelblatt extends PDFCreator {
     }
 
     private Rectangle createPageTemplate() {
-        // PageSize.A4 aber veränderbar zum Setzen der Hintergrundfarbe
-        final Rectangle pageTemplate = new Rectangle(PageSize.A4.getWidth(),
-                PageSize.A4.getHeight());
+        // PageSize.A5 aber veränderbar zum Setzen der Hintergrundfarbe
+        final Rectangle pageTemplate = new Rectangle(PageSize.A5.getWidth(),
+                PageSize.A5.getHeight());
 
         pageTemplate.setBackgroundColor(CHAMOIS_LIGHT_CMYK);
-        pageTemplate.setBorder(PageSize.A4.getBorder());
+        pageTemplate.setBorder(PageSize.A5.getBorder());
         return pageTemplate;
     }
 
